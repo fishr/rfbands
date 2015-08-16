@@ -52,7 +52,7 @@
 #define TIM_CNTRL 0xD
 #define TIM_PSCR 0xE
 
-#define TIM_CR1_CEN = 1
+#define TIM_CR1_CEN 1
 
 #define TIM2_OFF 0x5250
 #define TIM2_CR1 (VUINT TIM2_OFF + TIM_CR1)
@@ -74,28 +74,28 @@ unsigned int clock(void)
 void main(void)
 {
     CLK_DIVR = 0x00; // Set the frequency to 16 MHz
-	CLK_PCKENR1 |= CLK_PCKENR1_TIM2;// Enable clock to timer
+	CLK_PCKENR1 |= 1<<CLK_PCKENR1_TIM2;// Enable clock to timer
 
     // Configure timer
     // overflows to 65535 in ROUGHLY half a second
-    TIM2_PSCR = 0x7;
+    TIM2_PSCR = 0x07;
     // enable timer
-    TIM2_CR1 = TIM_CR1_CEN;
+    TIM2_CR1 = 1<<TIM_CR1_CEN;
 
     // Configure pins
-    PE_DDR = 0x80;
-    PE_CR1 = 0x80;
+    PD_DDR = 0x01;
+    PD_CR1 = 0x01;
 
-    PC_DDR = 0x80;
-    PC_CR1 = 0x80;
+    PC_DDR = 0x20;
+    PC_CR1 = 0x20;
 
     for(;;)
     {
-        PE_ODR &= 0x7f;
+        PD_ODR &= 0xFE;
         if(clock() <= 32768)
-            PE_ODR |= 0x80;
-        PC_ODR &= 0x7f;
+            PD_ODR |= 0x01;
+        PC_ODR &= 0xDF;
         if(clock() % 32768 <= 16000)
-            PC_ODR |= 0x80;
+            PC_ODR |= 0x20;
     }
 }
