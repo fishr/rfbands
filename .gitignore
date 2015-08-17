@@ -1,1 +1,12 @@
 *~
+*.ihx
+*.asm
+*.sym
+*.rel
+*.rst
+*.cdb
+*.lk
+*.lst
+*.map
+RyanFishBracelets/
+
