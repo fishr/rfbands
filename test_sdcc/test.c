@@ -1,3 +1,15 @@
+// IR is on PC4, which uses EXTI4(0x8038), and EXTI_CR2(0x50A1), EXTI_SR1(0x50A3)
+// the lowest two bits of EXTI_CR2 should be set to one of the following:
+//00: Falling edge and low level
+//01: Rising edge only
+//10: Falling edge only
+//11: Rising and falling edge
+//EXTI_SR1 1<<4 should be set to clear the pending interrupt in the routine
+//PC_CR2 1<<4 should be set to enable EXTI
+//PC_DDR 1<<4 should be cleared
+//PC_CR1 1<<4 should be cleared
+
+#include <sdcc-lib.h>
 #include <stdint.h>
 
 #define STM8L05X
@@ -6,6 +18,9 @@
 #ifdef STM8L05X
 #define VUINT *(volatile uint8_t *)
 #define REG_OFF (0x5000)
+
+#define EXTI_CR2 (VUINT (0x50A1))
+#define EXTI_SR1 (VUINT (0x50A3))
 
 #define IO_ODR 0x0
 #define IO_IDR 0x1
@@ -63,6 +78,13 @@
 
 #endif
 
+volatile uint8_t halt = 1;
+
+void test_int (void) __interrupt 12
+{
+	halt=0;
+	EXTI_SR1 |= 1<<4;
+}
 
 unsigned int clock(void)
 {
@@ -89,8 +111,18 @@ void main(void)
     PC_DDR = 0x60;
     PC_CR1 = 0x60;
 
-    for(;;)
-    {
+	//configure interrupts
+	PC_DDR &= 0xFF^(1<<4);
+	PC_CR1 &= 0xFF^(1<<4);
+	EXTI_CR2 |= 0x03;
+
+	//ENGAGE
+	PC_CR2 |= 1<<4;
+	__asm
+	rim
+	__endasm;
+
+    while(halt){
         if(clock() <= 32768){
             PD_ODR &= 0xFE;
 		}else{
@@ -102,4 +134,12 @@ void main(void)
 			PC_ODR |= 0x60;
 		}
     }
+	PC_ODR &= 0xBF;
+	PC_ODR |= 0x40;
+	while(1)
+	{
+		__asm
+		nop
+		__endasm;
+	}
 }
