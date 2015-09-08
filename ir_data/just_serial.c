@@ -32,16 +32,54 @@
 
 #define CLK_CKDIVR (VUINT (0x50C0))
 #define CLK_PCKENR1 (VUINT (0x50C3))
+#define PCKEN_TIM2 1<<0
 #define PCKEN_USART1 1<<5
 
-volatile uint8_t val=0;
+#define TIM_CR1 0X00
+#define TIM_CR2 0x01
+#define TIM_CNTRH 0x0C
+#define TIM_CNTRL 0x0D
+#define TIM_PSCR 0x0E
+
+#define TIM_CR1_CEN 1<<0
+
+#define TIM2_OFF 0x5250
+#define TIM2_CR1 (VUINT (TIM2_OFF + TIM_CR1))
+#define TIM2_CR2 (VUINT (TIM2_OFF + TIM_CR2))
+#define TIM2_CNTRH (VUINT (TIM2_OFF + TIM_CNTRH))
+#define TIM2_CNTRL (VUINT (TIM2_OFF + TIM_CNTRL))
+#define TIM2_PSCR (VUINT (TIM2_OFF + TIM_PSCR))
+
+volatile uint8_t rval=0;
+volatile uint8_t gval=0;
+volatile uint8_t bval=0;
+
+uint8_t time_val;
 
 void usart_isr(void) __interrupt 28
 {
+    uint8_t val = 0;
     if(USART1_SR & USART_RXNE){
-        val = USART1_DR;
+       val = USART1_DR;
     }else{
-        uint8_t throwaway = USART1_DR;
+        val = USART1_DR;
+        return;
+    }
+
+    if(val==0){
+        rval=0;
+        gval=0;
+        bval=0;
+    }else if(val<=64){
+        rval=val-1;
+    }else if(val<=128){
+        gval=val-65;
+    }else if(val<=192){
+        bval=val-129;
+    }else{
+        rval=0;
+        gval=0;
+        bval=0;
     }
 }
 
@@ -49,7 +87,10 @@ void usart_isr(void) __interrupt 28
 void main(){  
 
     CLK_CKDIVR = 0x00;
-    CLK_PCKENR1 |= PCKEN_USART1;
+    CLK_PCKENR1 |= PCKEN_USART1|PCKEN_TIM2;
+
+    TIM2_PSCR = 0x07;
+    TIM2_CR1 = TIM_CR1_CEN;
 
     PA_DDR &= ~0x08;
     PA_CR1 |= 0x08;
@@ -75,45 +116,21 @@ void main(){
     __endasm;
 
     while(1){
-        switch(val%8){
-            case 7:
-                PD_ODR &= ~0x01;
-                PC_ODR &= ~0x60;
-                break;
-            case 6:
-                PD_ODR |= 0x01;
-                PC_ODR &= ~0x60;
-                break;
-            case 5:
-                PD_ODR &= ~0x01;
-                PC_ODR |= 0x20;
-                PC_ODR &= ~0x40;
-                break;
-            case 4:
-                PD_ODR |= 0x01;
-                PC_ODR |= 0x20;
-                PC_ODR &= ~0x40;
-                break;   
-            case 3:
-                PD_ODR &= ~0x01;
-                PC_ODR &= ~0x20;
-                PC_ODR |= 0x40;
-                break;
-            case 2:
-                PD_ODR |= 0x01;
-                PC_ODR &= ~0x20;
-                PC_ODR |= 0x40;
-                break;
-            case 1:
-                PD_ODR &= ~0x01;
-                PC_ODR |= 0x20;
-                PC_ODR |= 0x40;
-                break;
-            default:
-                PD_ODR |= 0x01;
-                PC_ODR |= 0x20;
-                PC_ODR |= 0x40;
-                break;
+        time_val = TIM2_CNTRL>>2;
+        if(time_val>=gval){
+            PC_ODR |= 0x40;
+        }else{
+            PC_ODR &= ~0x40;
+        }
+        if(time_val>=rval){
+            PC_ODR |= 0x20;
+        }else{
+            PC_ODR &= ~0x20;
+        }
+        if(time_val>=bval){
+            PD_ODR |= 0x01;
+        }else{
+            PD_ODR &= ~0x01;
         }
     }
 }
