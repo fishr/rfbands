@@ -25,16 +25,10 @@ void setup()  {
 } 
 
 void loop()  { 
-  for(char i=0; i<48;i++){
-  for(char i = 0; i<10;i++){
     digitalWrite(ledPin, HIGH);
     delayMicroseconds(6);
     digitalWrite(ledPin, LOW);
     delayMicroseconds(7);
-  }
-  delayMicroseconds(350);
-  }
-  delay(1000);
 }
 
 

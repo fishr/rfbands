@@ -4,6 +4,9 @@
 enum comm_state_t {
     WAIT,
     START,
+    CMD_DLE,
+    DATA,
+    DATA_DLE,
     END_BYTE,
     ERROR
 };

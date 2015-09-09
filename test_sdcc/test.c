@@ -82,7 +82,7 @@ volatile uint8_t halt = 1;
 
 void test_int (void) __interrupt 12
 {
-	halt=0;
+	halt^=1;
 	EXTI_SR1 |= 1<<4;
 }
 
@@ -114,7 +114,7 @@ void main(void)
 	//configure interrupts
 	PC_DDR &= 0xFF^(1<<4);
 	PC_CR1 &= 0xFF^(1<<4);
-	EXTI_CR2 |= 0x03;
+	EXTI_CR2 |= 0x02;
 
 	//ENGAGE
 	PC_CR2 |= 1<<4;
@@ -122,24 +122,21 @@ void main(void)
 	rim
 	__endasm;
 
-    while(halt){
-        if(clock() <= 32768){
-            PD_ODR &= 0xFE;
+	for(;;){
+		if(halt){
+		    if(clock() <= 32768){
+		        PD_ODR &= 0xFE;
+			}else{
+		    	PD_ODR |= 0x01;
+			}
+		    if(clock() % 32768 <= 16000){
+				PC_ODR &= 0x9F;
+			}else{
+				PC_ODR |= 0x60;
+			}
 		}else{
-        	PD_ODR |= 0x01;
+			PC_ODR &= 0xBF;
+			PC_ODR |= 0x40;
 		}
-        if(clock() % 32768 <= 16000){
-			PC_ODR &= 0x9F;
-		}else{
-			PC_ODR |= 0x60;
-		}
-    }
-	PC_ODR &= 0xBF;
-	PC_ODR |= 0x40;
-	while(1)
-	{
-		__asm
-		nop
-		__endasm;
 	}
 }
