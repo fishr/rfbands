@@ -23,6 +23,9 @@
 #define PA_DDR (VUINT (0x5002))
 #define PA_CR1 (VUINT (0x5003))
 #define PA_CR2 (VUINT (0x5004))
+#define PB_ODR (VUINT (0x5005))
+#define PB_DDR (VUINT (0x5007))
+#define PB_CR1 (VUINT (0x5008))
 #define PC_ODR (VUINT (0x500A))
 #define PC_DDR (VUINT (0x500C))
 #define PC_CR1 (VUINT (0x500D))
@@ -92,10 +95,12 @@ void main(){
     TIM2_PSCR = 0x07;
     TIM2_CR1 = TIM_CR1_CEN;
 
+    //usart
     PA_DDR &= ~0x08;
     PA_CR1 |= 0x08;
     PA_CR2 &= ~0x08;
 
+    //leds
     PD_DDR |= 0x01;
     PD_CR1 |= 0x01;
     PD_ODR |= 0x01;
@@ -103,6 +108,10 @@ void main(){
     PC_DDR |= 0x60;
     PC_CR1 |= 0x60;
     PC_ODR |= 0x60;
+
+    PB_DDR |= 0x07;
+    PB_CR1 |= 0x07;
+    PB_ODR |= 0x07;
 
     SYSCFG_RMPCR1 |= 0x10;
 
