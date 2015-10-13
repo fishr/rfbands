@@ -126,7 +126,7 @@ void main(){
 
     while(1){
         time_val = TIM2_CNTRL>>2;
-        if(time_val>=gval){
+        if(time_val>=bval){
             PC_ODR |= 0x40;
         }else{
             PC_ODR &= ~0x40;
@@ -136,7 +136,7 @@ void main(){
         }else{
             PC_ODR &= ~0x20;
         }
-        if(time_val>=bval){
+        if(time_val>=gval){
             PD_ODR |= 0x01;
         }else{
             PD_ODR &= ~0x01;

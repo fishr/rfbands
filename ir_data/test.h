@@ -13,6 +13,8 @@
 #include <stdint.h>
 #include "io.h"
 #include "serial.h"
+#include "clock.h"
+#include "error.h"
 
 #ifndef TEST_H
 #define TEST_H

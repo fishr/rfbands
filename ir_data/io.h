@@ -79,6 +79,7 @@
 #define USART_R8 1<<7
 #define USART_PE 1<<0
 #define USART_RXNE 1<<5
+#define PCKEN_USART1 1<<5
 
 #define USART1_OFF 0x5230
 #define USART1_SR (VUINT (USART1_OFF + USART_SR))

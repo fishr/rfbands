@@ -1,16 +1,14 @@
 
 #include "serial.h"
 
-volatile extern bit serial_data_ready_flag = 0;
-volatile extern uint8_t serial_cmd = 0;
-volatile extern uint8_t serial_data[MAX_SERIAL_BUFF];
-volatile static comm_state_t comm_state = WAIT;
+volatile uint8_t serial_data_ready_flag = 0;
+volatile uint8_t serial_cmd = 0;
+volatile uint8_t serial_data[MAX_SERIAL_BUFF];
+volatile enum comm_state_t comm_state = WAIT;
 
 void init_serial_clock(){
-    //USART1_BRR2 = SERIAL_CLK_HIGH;
-    //USART1_BRR1 = SERIAL_CLK_LOW;
-    USART1_BRR2 = 0x35;
-    USART1_BRR1 = 0x41;
+    USART1_BRR2 = SERIAL_CLK_HIGH;
+    USART1_BRR1 = SERIAL_CLK_LOW;
 }
 
 void init_serial(){
@@ -38,24 +36,25 @@ void disable_serial(){
 
 void serial_isr(void) __interrupt 28
 {
+    uint8_t status = USART1_SR;
     uint8_t raw_data = USART1_DR;
 
-    if(USART1_SR & USART_ERROR){
+    if(status & USART_ERROR){
         comm_state = ERROR;
-    }else if(USART1_SR & USART_RXNE){
+    }else if(status & USART_RXNE){
         switch(comm_state){
             case WAIT:
-                if(raw_data==COMM_START_BYTE){
+                if(raw_data==SERIAL_START_BYTE){
                     comm_state = START;
                 }
                 break;
             case START:
-                if(raw_data==COMM_DLE){
+                if(raw_data==SERIAL_DLE){
                     comm_state = CMD_DLE;
-                }else if(raw_data==NULL_INDICATOR){
+                }else if(raw_data==SERIAL_NULL_INDICATOR){
                     serial_cmd = 0;
                     comm_state = DATA;
-                }else if(raw_data==COMM_START_BYTE||raw_data==COMM_END_BYTE){
+                }else if(raw_data==SERIAL_START_BYTE||raw_data==SERIAL_END_BYTE){
                     comm_state=ERROR;
                 }else{
                     serial_cmd = raw_data;
@@ -67,12 +66,12 @@ void serial_isr(void) __interrupt 28
                 comm_state = DATA;
                 break;
             case DATA:
-                if(raw_data==COMM_DLE){
+                if(raw_data==SERIAL_DLE){
                     comm_state = DATA_DLE;
-                }else if(raw_data==NULL_INDICATOR){
+                }else if(raw_data==SERIAL_NULL_INDICATOR){
                     serial_data[0] = 0;
                     comm_state = END_BYTE;
-                }else if(raw_data==COMM_START_BYTE||raw_data==COMM_END_BYTE){
+                }else if(raw_data==SERIAL_START_BYTE||raw_data==SERIAL_END_BYTE){
                     comm_state=ERROR;
                 }else{
                     serial_data[0] = raw_data;
@@ -84,7 +83,7 @@ void serial_isr(void) __interrupt 28
                 comm_state = END_BYTE;
                 break;
             case END_BYTE:
-                if(raw_data==COMM_END_BYTE){
+                if(raw_data==SERIAL_END_BYTE){
                     serial_data_ready_flag = 1;
                     comm_state = WAIT;
                 }else{
