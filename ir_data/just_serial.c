@@ -128,18 +128,24 @@ void main(){
         time_val = TIM2_CNTRL>>2;
         if(time_val>=bval){
             PC_ODR |= 0x40;
+            PB_ODR |= 0x04;
         }else{
             PC_ODR &= ~0x40;
+            PB_ODR &= ~0x04;
         }
         if(time_val>=rval){
             PC_ODR |= 0x20;
+            PB_ODR |= 0x01;
         }else{
             PC_ODR &= ~0x20;
+            PB_ODR &= ~0x01;
         }
         if(time_val>=gval){
             PD_ODR |= 0x01;
+            PB_ODR |= 0x02;
         }else{
             PD_ODR &= ~0x01;
+            PB_ODR &= ~0x02;
         }
     }
 }
