@@ -16,6 +16,8 @@ sudo apt-get dist-upgrade
 sdcc can be obtained from their page on sourceforge
 
 stm8flash is a git repository courtesy of someone named valentin i think, get it, add to path
+might require apt-get install libusb-1.0
+then make and make install
 
 
 stm8flash -c stlink -p stm8l051f3 -w test.ihx
