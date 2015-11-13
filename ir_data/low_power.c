@@ -185,11 +185,13 @@ void main(){
 
     USART1_CR2 |= USART_REN|USART_RIEN;
 
-    __asm
-    rim
-    __endasm;
+
 
     while(1){
+        __asm
+        sim
+        __endasm;
+    
         //red
         TIM2_CCR1H=rval>>1;
         TIM2_CCR1L=rval<<7
@@ -201,6 +203,7 @@ void main(){
         TIM3_CCR1L=bval<<7;
     
         __asm
+        rim
         wfi
         __endasm;
     }
