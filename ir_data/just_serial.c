@@ -101,17 +101,8 @@ void main(){
     PA_CR2 &= ~0x08;
 
     //leds
-    PD_DDR |= 0x01;
-    PD_CR1 |= 0x01;
-    PD_ODR |= 0x01;
-
-    PC_DDR |= 0x60;
-    PC_CR1 |= 0x60;
-    PC_ODR |= 0x60;
-
-    PB_DDR |= 0x07;
-    PB_CR1 |= 0x07;
-    PB_ODR |= 0x07;
+    PB_DDR |= 0x7E;
+    PB_ODR |= 0x7E;
 
     SYSCFG_RMPCR1 |= 0x10;
 
@@ -124,28 +115,23 @@ void main(){
     rim
     __endasm;
 
+
     while(1){
         time_val = TIM2_CNTRL>>2;
         if(time_val>=bval){
-            PC_ODR |= 0x40;
-            PB_ODR |= 0x04;
+            PB_ODR |= 0x24;
         }else{
-            PC_ODR &= ~0x40;
-            PB_ODR &= ~0x04;
+            PB_ODR &= ~0x24;
         }
         if(time_val>=rval){
-            PC_ODR |= 0x20;
-            PB_ODR |= 0x01;
+            PB_ODR |= 0x48;
         }else{
-            PC_ODR &= ~0x20;
-            PB_ODR &= ~0x01;
+            PB_ODR &= ~0x48;
         }
         if(time_val>=gval){
-            PD_ODR |= 0x01;
-            PB_ODR |= 0x02;
+            PB_ODR |= 0x12;
         }else{
-            PD_ODR &= ~0x01;
-            PB_ODR &= ~0x02;
+            PB_ODR &= ~0x12;
         }
     }
 }
