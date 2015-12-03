@@ -6,6 +6,9 @@ volatile uint8_t serial_cmd = 0;
 volatile uint8_t serial_data[MAX_SERIAL_BUFF];
 volatile enum comm_state_t comm_state = WAIT;
 
+volatile uint8_t temp_fun; //function val
+volatile uint8_t temp_data[MAX_SERIAL_BUFF];
+
 void init_serial_clock(){
     USART1_BRR2 = SERIAL_CLK_HIGH;
     USART1_BRR1 = SERIAL_CLK_LOW;
@@ -45,45 +48,54 @@ void serial_isr(void) __interrupt 28
         switch(comm_state){
             case WAIT:
                 if(raw_data==SERIAL_START_BYTE){
-                    comm_state = START;
+                    comm_state = START1;
                 }
                 break;
-            case START:
+            case START1:
+                if(raw_data==SERIAL_START_BYTE){
+                    comm_state = START2;
+                }else{
+                    comm_state = ERROR;
+                }
+                break;
+            case START2:
                 if(raw_data==SERIAL_DLE){
                     comm_state = CMD_DLE;
                 }else if(raw_data==SERIAL_NULL_INDICATOR){
-                    serial_cmd = 0;
+                    temp_fun = 0;
                     comm_state = DATA;
                 }else if(raw_data==SERIAL_START_BYTE||raw_data==SERIAL_END_BYTE){
                     comm_state=ERROR;
                 }else{
-                    serial_cmd = raw_data;
+                    temp_fun = raw_data;
                     comm_state = DATA;
                 }
                 break;
             case CMD_DLE:
-                serial_cmd=raw_data;
+                temp_fun=raw_data;
                 comm_state = DATA;
                 break;
             case DATA:
                 if(raw_data==SERIAL_DLE){
                     comm_state = DATA_DLE;
                 }else if(raw_data==SERIAL_NULL_INDICATOR){
-                    serial_data[0] = 0;
+                    temp_data[0] = 0;
                     comm_state = END_BYTE;
                 }else if(raw_data==SERIAL_START_BYTE||raw_data==SERIAL_END_BYTE){
                     comm_state=ERROR;
                 }else{
-                    serial_data[0] = raw_data;
+                    temp_data[0] = raw_data;
                     comm_state = END_BYTE;
                 }
                 break;
             case DATA_DLE:
-                serial_data[0]=raw_data;
+                temp_data[0]=raw_data;
                 comm_state = END_BYTE;
                 break;
             case END_BYTE:
                 if(raw_data==SERIAL_END_BYTE){
+                    serial_cmd=temp_fun;
+                    mem_cpy(serial_data,temp_data,MAX_SERIAL_BUFF);
                     serial_data_ready_flag = 1;
                     comm_state = WAIT;
                 }else{
@@ -98,7 +110,7 @@ void serial_isr(void) __interrupt 28
         comm_state == ERROR;
     }
     if(comm_state == ERROR){
-        ERROR_COMM();
+        comm_state = WAIT;
     }
 }
 

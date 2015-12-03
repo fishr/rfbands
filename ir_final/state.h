@@ -3,7 +3,8 @@
 #define STATE_H
 enum comm_state_t {
     WAIT,
-    START,
+    START1,
+    START2,
     CMD_DLE,
     DATA,
     DATA_DLE,
