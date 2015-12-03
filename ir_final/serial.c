@@ -89,7 +89,7 @@ void serial_isr(void) __interrupt 28
                     comm_state=ERROR;
                 }else if(raw_data==SERIAL_END_BYTE){
                     serial_cmd=temp_fun;
-                    mem_cpy(serial_data,temp_data,MAX_SERIAL_BUFF);
+                    memcpy(serial_data,temp_data,MAX_SERIAL_BUFF);
                     serial_data_ready_flag = 1;
                     comm_state = WAIT;
                 }else{
@@ -105,14 +105,15 @@ void serial_isr(void) __interrupt 28
                 break;
 
             default:
-                ERROR_COMM();
-                break;
+                comm_state=ERROR;
+		break;
         }
     }else{
         comm_state == ERROR;
     }
     if(comm_state == ERROR){
         comm_state = WAIT;
+		//ERROR_COMM();
     }
 }
 

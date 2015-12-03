@@ -1,8 +1,9 @@
 
 #include "io.h"
 #include "state.h"
-#include "error.h"
+//#include "error.h"
 #include <stdint.h>
+#include <string.h>
 
 #ifndef SERIAL_H
 #define SERIAL_H
