@@ -1,10 +1,14 @@
+#ifdef RANDOM_SEED
 #include "final.h"
+#endif //RANDOM_SEED
 
 volatile uint8_t rval=0;
 volatile uint8_t gval=0;
 volatile uint8_t bval=0;
 
 volatile uint16_t global_clock=0;
+
+  int random_num=0;
 
 void tim2ov_isr(void) __interrupt 19
 {
@@ -35,7 +39,7 @@ void tim2cc_isr(void) __interrupt 20
   }else if(status & TIM_SR1_CC2IF){
     //Green
     TIM2_SR1=status & ~TIM_SR1_CC2IF;
-            PB_ODR |= 0x12;
+            PB_ODR |= 0x24;
   }
 }
   
@@ -45,7 +49,7 @@ void tim3cc_isr(void) __interrupt 22
   uint8_t status = TIM3_SR1;
   if(status & TIM_SR1_CC1IF){
     TIM3_SR1=status & ~TIM_SR1_CC1IF;
-            PB_ODR |= 0x24;
+            PB_ODR |= 0x12;
   }
 }
 
@@ -88,18 +92,27 @@ void main(){
 
     USART1_CR2 |= USART_REN|USART_RIEN;
 
-
-
+    srand(RANDOM_SEED);
+    
     while(1){
         __asm
         sim
         __endasm;
 
         if(serial_data_ready_flag){
-            rval=serial_data[0];
-            gval=serial_data[1];
-            bval=serial_data[2];
-        
+	    if(serial_cmd==0){
+                rval=serial_data[0];
+                gval=serial_data[1];
+                bval=serial_data[2];
+            
+       }
+}
+random_num = rand();
+	if(random_num>20000){
+		rval=200;
+}else if(random_num<10000){
+                rval=0;
+}
     
             //red
             TIM2_CCR1H=rval>>1;
@@ -110,7 +123,7 @@ void main(){
             //blue
             TIM3_CCR1H=bval>>1;
             TIM3_CCR1L=bval<<7;
-        }
+        
  
         __asm
         rim
@@ -118,3 +131,4 @@ void main(){
         __endasm;
     }
 }
+

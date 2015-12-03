@@ -17,7 +17,7 @@ if __name__=='__main__':
 
     while(1):
       ser.write(bytearray([start_byte,start_byte,0,0,0,0xFF,end_byte]))
-      ser.write(bytearray([0x40,0x80,0xC0]))
+      ser.write(bytearray([0x20,0x60,0xA0]))
       
       time.sleep(delay)
     
