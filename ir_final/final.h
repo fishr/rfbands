@@ -12,8 +12,12 @@
 #error "Must define RANDOM_SEED to program"
 #endif
 
+#ifndef FINAL_H
+#define FINAL_H
+
 void testHSV(void);
 void case5(void);
 void setRGB(uint8_t r, uint8_t g, uint8_t b);
 void setRGBStruct(HsvColor *hsv);
 
+#endif //FINAL_H

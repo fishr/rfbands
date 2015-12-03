@@ -153,6 +153,7 @@
 #define TIM3_ARRH (VUINT (TIM3_OFF + TIM_ARRH))
 #define TIM3_ARRL (VUINT (TIM3_OFF + TIM_ARRL))
 
+void initAll(void);
 
 #endif /*STM8L05X*/
 #endif /*IO_H*/
