@@ -1,5 +1,4 @@
-#include <sdcc-lib.h>
-#include <stdint.h>
+#include "final.h"
 
 #define VUINT *(volatile uint8_t *)
 #define SYSCFG_RMPCR1 (VUINT (0x509E))
