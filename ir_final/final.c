@@ -7,7 +7,8 @@ volatile uint8_t bval=0;
 
 volatile uint16_t global_clock=0;
 
-  int random_num=0;
+int random_num=0;
+uint8_t breathing=0;
 
 void tim2ov_isr(void) __interrupt 19
 {
@@ -99,21 +100,32 @@ void main(){
         __endasm;
 
         if(serial_data_ready_flag){
-	    switch(serial_cmd){
-            case 0:
-                    rval=serial_data[0];
-                    gval=serial_data[1];
-                    bval=serial_data[2];
-                    break;            
+            switch(serial_cmd){
+                 case 0:  //GLobAL SET
+                    breathing=0;
+                    setRGB(serial_data[0], serial_data[1], serial_data[2]);
+                    break;
+                case 1:  //ROW SET
+                    breathing=0;
+                    if(serial_data[3]!=KRESGE_ROW){
+                        setRGB(serial_data[0], serial_data[1], serial_data[2]);
+                    }
+                    break;
+               case 3:  //RANDoM TWINKLE BREATHING
+                    breathing = 1;
+                    //ifclock()<last_time
+                        //handle overflow
+                    break;
+                case 4:  //random color random twinkling breathing
+                    //TODO
+                    break;
+                case 5:  //random color of given brightness
+                    //use the 15 bit number we get from rand, lower 8 for hue, upper 7 for saturation (with the 8th bit always set)
+                    case5();
+
        }
 }
-random_num = rand();
-	if(random_num>20000){
-		rval=200;
-}else if(random_num<10000){
-                rval=0;
-}
-    
+testHSV();   
             //red
             TIM2_CCR1H=rval>>1;
             TIM2_CCR1L=rval<<7;
@@ -132,3 +144,28 @@ random_num = rand();
     }
 }
 
+void testHSV(){
+HsvColor hsvc = {(uint8_t)(0x00FF&(random_num++)), 0xFF, 0xFF};
+setRGBStruct(&hsvc);
+ 
+}
+
+void case5(){
+    uint8_t brightness = serial_data[0];
+    uint16_t colorseed=rand();
+    HsvColor hue={(uint8_t)(0x00FF&colorseed), (uint8_t) (((0x7F00)>>8)|0x80), brightness};
+    setRGBStruct(hue);
+}
+
+
+void setRGB(uint8_t r, uint8_t g, uint8_t b){
+    rval=r;
+    gval=g;
+    bval=b;
+}
+
+void setRGBStruct(HsvColor *hsv){
+    RgbColor rgb;
+    HsvToRgb(hsv,&rgb);
+    setRGB(rgb.r, rgb.g, rgb.b);
+}
