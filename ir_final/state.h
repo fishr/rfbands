@@ -8,7 +8,6 @@ enum comm_state_t {
     CMD_DLE,
     DATA,
     DATA_DLE,
-    END_BYTE,
     ERROR
 };
 

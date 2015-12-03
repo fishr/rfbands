@@ -8,6 +8,8 @@ volatile enum comm_state_t comm_state = WAIT;
 
 volatile uint8_t temp_fun; //function val
 volatile uint8_t temp_data[MAX_SERIAL_BUFF];
+volatile uint8_t serial_index=0;
+
 
 void init_serial_clock(){
     USART1_BRR2 = SERIAL_CLK_HIGH;
@@ -49,6 +51,7 @@ void serial_isr(void) __interrupt 28
             case WAIT:
                 if(raw_data==SERIAL_START_BYTE){
                     comm_state = START1;
+                    serial_index=0;
                 }
                 break;
             case START1:
@@ -79,29 +82,28 @@ void serial_isr(void) __interrupt 28
                 if(raw_data==SERIAL_DLE){
                     comm_state = DATA_DLE;
                 }else if(raw_data==SERIAL_NULL_INDICATOR){
-                    temp_data[0] = 0;
-                    comm_state = END_BYTE;
-                }else if(raw_data==SERIAL_START_BYTE||raw_data==SERIAL_END_BYTE){
+                    temp_data[serial_index] = 0;
+                    serial_index++;
+                    comm_state = DATA;
+                }else if(raw_data==SERIAL_START_BYTE){
                     comm_state=ERROR;
-                }else{
-                    temp_data[0] = raw_data;
-                    comm_state = END_BYTE;
-                }
-                break;
-            case DATA_DLE:
-                temp_data[0]=raw_data;
-                comm_state = END_BYTE;
-                break;
-            case END_BYTE:
-                if(raw_data==SERIAL_END_BYTE){
+                }else if(raw_data==SERIAL_END_BYTE){
                     serial_cmd=temp_fun;
                     mem_cpy(serial_data,temp_data,MAX_SERIAL_BUFF);
                     serial_data_ready_flag = 1;
                     comm_state = WAIT;
                 }else{
-                    comm_state = ERROR;
+                    temp_data[serial_index] = raw_data;
+                    serial_index++;
+                    comm_state = DATA;
                 }
                 break;
+            case DATA_DLE:
+                temp_data[serial_index]=raw_data;
+                serial_index++;
+                comm_state = DATA;
+                break;
+
             default:
                 ERROR_COMM();
                 break;

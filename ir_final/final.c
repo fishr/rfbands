@@ -104,33 +104,6 @@ volatile uint8_t bval=0;
 
 volatile uint16_t global_clock=0;
 
-void usart_isr(void) __interrupt 28
-{
-    uint8_t val = 0;
-    if(USART1_SR & USART_RXNE){
-       val = USART1_DR;
-    }else{
-        val = USART1_DR;
-        return;
-    }
-
-    if(val==0){
-        rval=0;
-        gval=0;
-        bval=0;
-    }else if(val<=64){
-        rval=(val-1)*4;
-    }else if(val<=128){
-        gval=(val-65)*4;
-    }else if(val<=192){
-        bval=(val-129)*4;
-    }else{
-        rval=0;
-        gval=0;
-        bval=0;
-    }
-}
-
 void tim2ov_isr(void) __interrupt 19
 {
   uint8_t status = TIM2_SR1;
@@ -139,11 +112,12 @@ void tim2ov_isr(void) __interrupt 19
     //all off
             PB_ODR &= ~0x7E;
     global_clock++;
+    /*clock testing code
     if(global_clock%100==0){
       rval=rval>>1;
       bval=bval>>1;
       gval=gval>>1;
-    }
+    }*/
   }
 }
   
@@ -215,17 +189,24 @@ void main(){
         __asm
         sim
         __endasm;
+
+        if(serial_data_ready_flag){
+            rval=serial_data[0];
+            gval=serial_data[1];
+            bval=serial_data[2];
+        
     
-        //red
-        TIM2_CCR1H=rval>>1;
-        TIM2_CCR1L=rval<<7;
-        //green
-        TIM2_CCR2H=gval>>1;
-        TIM2_CCR2L=gval<<7;
-        //blue
-        TIM3_CCR1H=bval>>1;
-        TIM3_CCR1L=bval<<7;
-    
+            //red
+            TIM2_CCR1H=rval>>1;
+            TIM2_CCR1L=rval<<7;
+            //green
+            TIM2_CCR2H=gval>>1;
+            TIM2_CCR2L=gval<<7;
+            //blue
+            TIM3_CCR1H=bval>>1;
+            TIM3_CCR1L=bval<<7;
+        }
+ 
         __asm
         rim
         wfi
