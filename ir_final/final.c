@@ -1,6 +1,5 @@
-#ifdef RANDOM_SEED
 #include "final.h"
-#endif //RANDOM_SEED
+
 
 volatile uint8_t rval=0;
 volatile uint8_t gval=0;
@@ -100,11 +99,12 @@ void main(){
         __endasm;
 
         if(serial_data_ready_flag){
-	    if(serial_cmd==0){
-                rval=serial_data[0];
-                gval=serial_data[1];
-                bval=serial_data[2];
-            
+	    switch(serial_cmd){
+            case 0:
+                    rval=serial_data[0];
+                    gval=serial_data[1];
+                    bval=serial_data[2];
+                    break;            
        }
 }
 random_num = rand();
