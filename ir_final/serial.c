@@ -88,9 +88,11 @@ void serial_isr(void) __interrupt 28
                 }else if(raw_data==SERIAL_START_BYTE){
                     comm_state=ERROR;
                 }else if(raw_data==SERIAL_END_BYTE){
-                    serial_cmd=temp_fun;
-                    memcpy(serial_data,temp_data,MAX_SERIAL_BUFF);
-                    serial_data_ready_flag = 1;
+                    if(!serial_data_ready_flag){
+						serial_cmd=temp_fun;
+                    	memcpy(serial_data,temp_data,MAX_SERIAL_BUFF);
+                    	serial_data_ready_flag = 1;
+					}
                     comm_state = WAIT;
                 }else{
                     temp_data[serial_index] = raw_data;

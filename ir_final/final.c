@@ -16,7 +16,7 @@ void tim2ov_isr(void) __interrupt 19
   if(status & TIM_SR1_UIF){
     TIM2_SR1=status & ~TIM_SR1_UIF;
     //all off
-            PB_ODR &= ~0x7E;
+    PB_ODR &= ~0x7E;
     global_clock++;
     /*clock testing code
     if(global_clock%100==0){
@@ -87,6 +87,10 @@ void main(){
                     case5();
 
        }
+}
+if(global_clock%100==0){
+serial_data[0]=255;
+case5();
 }
             //red
             TIM2_CCR1H=rval>>1;
