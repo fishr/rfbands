@@ -139,11 +139,6 @@ void tim2ov_isr(void) __interrupt 19
     //all off
             PB_ODR &= ~0x7E;
     global_clock++;
-    if(global_clock%100==0){
-      rval=rval>>1;
-      bval=bval>>1;
-      gval=gval>>1;
-    }
   }
 }
   
