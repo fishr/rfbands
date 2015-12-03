@@ -44,66 +44,37 @@ void serial_isr(void) __interrupt 28
     uint8_t status = USART1_SR;
     uint8_t raw_data = USART1_DR;
 
-    if(status & USART_ERROR){
-        comm_state = ERROR;
-    }else if(status & USART_RXNE){
+    if(status & USART_RXNE){
         switch(comm_state){
             case WAIT:
                 if(raw_data==SERIAL_START_BYTE){
-                    comm_state = START1;
+                    comm_state = START;
                     serial_index=0;
                 }
                 break;
-            case START1:
-                if(raw_data==SERIAL_START_BYTE){
-                    comm_state = START2;
-                }else{
-                    comm_state = ERROR;
-                }
-                break;
-            case START2:
-                if(raw_data==SERIAL_DLE){
-                    comm_state = CMD_DLE;
-                }else if(raw_data==SERIAL_NULL_INDICATOR){
-                    temp_fun = 0;
-                    comm_state = DATA;
-                }else if(raw_data==SERIAL_START_BYTE||raw_data==SERIAL_END_BYTE){
+            case START:
+                if(raw_data==SERIAL_START_BYTE||raw_data==SERIAL_END_BYTE){
                     comm_state=ERROR;
                 }else{
                     temp_fun = raw_data;
                     comm_state = DATA;
                 }
                 break;
-            case CMD_DLE:
-                temp_fun=raw_data;
-                comm_state = DATA;
-                break;
             case DATA:
-                if(raw_data==SERIAL_DLE){
-                    comm_state = DATA_DLE;
-                }else if(raw_data==SERIAL_NULL_INDICATOR){
-                    temp_data[serial_index] = 0;
-                    serial_index++;
-                    comm_state = DATA;
-                }else if(raw_data==SERIAL_START_BYTE){
+                if(raw_data==SERIAL_START_BYTE){
                     comm_state=ERROR;
                 }else if(raw_data==SERIAL_END_BYTE){
                     if(!serial_data_ready_flag){
-						serial_cmd=temp_fun;
+			serial_cmd=temp_fun;
                     	memcpy(serial_data,temp_data,MAX_SERIAL_BUFF);
                     	serial_data_ready_flag = 1;
-					}
+			}
                     comm_state = WAIT;
                 }else{
                     temp_data[serial_index] = raw_data;
                     serial_index++;
                     comm_state = DATA;
                 }
-                break;
-            case DATA_DLE:
-                temp_data[serial_index]=raw_data;
-                serial_index++;
-                comm_state = DATA;
                 break;
 
             default:
