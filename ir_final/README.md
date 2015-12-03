@@ -6,10 +6,11 @@ oh_shit.c is the fall-back file that runs using the original protocol (0 is blac
 
 
 #Functions
+0. set RGB globally (r,g,b) colors 0-255
 1. set row (r,g,b,row)  colors 0-255, rows unknown limits
-2. set RGB globally (r,g,b) colors 0-255
-3. random twinkle fixed color breathing (r,g,b,probability) all full bytes 0-255
-4. random color random twinkle (probability) 0-255
-5. random color of fixed brightness (brightness) 0-255
-6. random twinkle no breathe  (rgb, prob)
-7. random color random twinkle no breathe (prob)
+2. random twinkle fixed color breathing (r,g,b,probability, speed) all full bytes 0-255
+3. random color random twinkle (probability, speed) 0-255
+4. random color of fixed brightness (brightness) 0-255
+5. random twinkle no breathe  (rgb, prob)
+6. random color random twinkle no breathe (prob)
+7. random twinkle breathing fixed hue (hue,probability, speed)

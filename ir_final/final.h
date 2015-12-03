@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include "serial.h"
-#include "hsv2rgb.h"
+//#include "hsv2rgb.h"
 
 #ifndef KRESGE_ROW
 #error "must define KRESGE_ROW to program"
@@ -23,6 +23,6 @@ uint8_t getBreath(void);
 void testHSV(void);
 void case5(void);
 void setRGB(uint8_t r, uint8_t g, uint8_t b);
-void setRGBStruct(HsvColor *hsv);
+//void setRGBStruct(HsvColor *hsv);
 
 #endif //FINAL_H
