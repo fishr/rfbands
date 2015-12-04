@@ -8,7 +8,7 @@ if __name__=='__main__':
         
     ser=serial.Serial('/dev/ttyUSB0',1200)
     
-    delay=1
+    delay=0.5
     
     start_byte=0x37
     end_byte=0x2B
@@ -16,13 +16,11 @@ if __name__=='__main__':
     null_indicator=0x35
 
     while(1):
-      ser.write(bytearray([start_byte,start_byte,0,0,0,0xFF,end_byte]))
-      ser.write(bytearray([0x20,0x60,0xA0]))
+      ser.write(bytearray([start_byte,start_byte,0,255,255,255,end_byte]))
       
       time.sleep(delay)
     
       ser.write(bytearray([start_byte,start_byte,0, null_indicator,null_indicator,null_indicator,end_byte]))
-      ser.write(bytearray([0]))
     
       time.sleep(delay)
     
