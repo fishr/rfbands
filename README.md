@@ -24,6 +24,8 @@ stm8flash -c stlink -p stm8l051f3 -w test.ihx
 
 sdcc -mstm8 --std-c99 test.c
 
-
+problems with connecting to programmers:
 /etc/udev/rules.d/stmicro.rules   << ATTRS{idVendor}=="0483", MODE:="0666"
 
+
+PLEASE SEE THE IR_FINAL DIRECTORY FOR THE README FOR THE CODE
